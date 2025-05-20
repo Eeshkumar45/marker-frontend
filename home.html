@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Join or Create a Room</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  label {
+    font-weight: 600;
+    display: block;
+    margin-top: 15px;
+  }
+  input[type="text"],
+  input[type="number"],
+  input[type="datetime-local"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 8px 10px;
+    margin-top: 6px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+  button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    background-color: #007bff;
+    transition: background-color 0.3s ease;
+  }
+  button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+  #status {
+    margin-top: 15px;
+    min-height: 20px;
+    text-align: center;
+    font-weight: 600;
+    color: #666;
+  }
+  .hidden {
+    display: none;
+  }
+  .form-section {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+  }
+  small.note {
+    font-size: 12px;
+    color: #666;
+  }
+</style>
+</head>
+<body>
+
+  <h1>Join or Create a Room</h1>
+
+  <label for="roomIdInput">Room ID:</label>
+  <input type="text" id="roomIdInput" placeholder="Enter room ID" autocomplete="off" />
+
+  <div id="status"></div>
+
+  <!-- Join button -->
+  <button id="joinBtn" class="hidden">Join Room</button>
+
+  <!-- Create form -->
+  <form id="createForm" class="form-section hidden">
+    <label for="title">Title:</label>
+    <input type="text" id="title" required placeholder="Room title" />
+
+    <label for="defaultLocation">Default Location:</label>
+    <input type="text" id="defaultLocation" required placeholder="e.g. New York" />
+
+    <label for="zoom">Zoom Level:</label>
+    <input type="number" id="zoom" min="1" max="20" value="10" required />
+
+    <label for="extraFieldsAllowed">Allow Extra Fields?</label>
+    <select id="extraFieldsAllowed" required>
+      <option value="true">Yes</option>
+      <option value="false" selected>No</option>
+    </select>
+
+    <label for="predefinedFields">Predefined Fields (comma separated):</label>
+    <textarea id="predefinedFields" placeholder="e.g. name,email,phone"></textarea>
+
+    <label for="mandatoryFields">Mandatory Fields (comma separated):</label>
+    <textarea id="mandatoryFields" placeholder="e.g. email"></textarea>
+
+    <label for="expiresOn">Expires On:</label>
+    <input type="datetime-local" id="expiresOn" />
+
+    <button type="submit" id="createBtn">Create Room</button>
+  </form>
+
+<script>
+  const roomIdInput = document.getElementById('roomIdInput');
+  const statusDiv = document.getElementById('status');
+  const joinBtn = document.getElementById('joinBtn');
+  const createForm = document.getElementById('createForm');
+  const createBtn = document.getElementById('createBtn');
+  //let baseUri = "https://marker-0bvl.onrender.com";
+  let baseUri = "http://129.159.224.245:8000";
+
+  // Simple ID validation (alphanumeric + dashes, 3-50 chars)
+  function validateRoomId(id) {
+    return /^[a-zA-Z0-9\-]{3,50}$/.test(id);
+  }
+
+  let debounceTimer;
+
+  async function checkAvailability(id) {
+    try {
+      const res = await fetch(`${baseUri}/rooms/check-availability?id=${encodeURIComponent(id)}`);
+      if (!res.ok) throw new Error('Network error');
+      return await res.json();
+    } catch {
+      return null;
+    }
+  }
+
+  function clearUI() {
+    statusDiv.textContent = '';
+    joinBtn.classList.add('hidden');
+    createForm.classList.add('hidden');
+  }
+
+  roomIdInput.addEventListener('input', () => {
+    clearUI();
+    const id = roomIdInput.value.trim();
+    if (!validateRoomId(id)) {
+      statusDiv.textContent = 'Room ID must be 3-50 chars: letters, numbers, or dashes.';
+      return;
+    }
+    statusDiv.textContent = 'Checking...';
+
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(async () => {
+      const data = await checkAvailability(id);
+      if (data === null) {
+        statusDiv.textContent = 'Error checking room availability.';
+        return;
+      }
+      if (data.available) {
+        statusDiv.textContent = '';
+        createForm.classList.remove('hidden');
+        joinBtn.classList.add('hidden');
+      } else {
+        statusDiv.textContent = '';
+        joinBtn.classList.remove('hidden');
+        createForm.classList.add('hidden');
+      }
+    }, 700);
+  });
+
+  // Join room button click - simple redirect
+  joinBtn.addEventListener('click', () => {
+    const id = roomIdInput.value.trim();
+    if (!validateRoomId(id)) {
+      alert('Invalid room ID.');
+      return;
+    }
+    let webUrl = `${window.location.origin}/`;
+    window.location.href = `${webUrl}/map?room=${id}`;
+  });
+
+  // Form submit - create room
+  createForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    createBtn.disabled = true;
+    statusDiv.textContent = 'Creating room...';
+
+    const id = roomIdInput.value.trim();
+    const title = document.getElementById('title').value.trim();
+    const defaultLocation = document.getElementById('defaultLocation').value.trim();
+    const zoom = Number(document.getElementById('zoom').value);
+    const extraFieldsAllowed = document.getElementById('extraFieldsAllowed').value === 'true';
+    const predefinedFields = document.getElementById('predefinedFields').value
+      .split(',')
+      .map(f => f.trim())
+      .filter(f => f.length > 0);
+    const mandatoryFields = document.getElementById('mandatoryFields').value
+      .split(',')
+      .map(f => f.trim())
+      .filter(f => f.length > 0);
+    const expiresOnRaw = document.getElementById('expiresOn').value;
+    const expiresOn = expiresOnRaw ? new Date(expiresOnRaw).toISOString() : null;
+
+    const payload = {
+      id,
+      title,
+      defaultLocation,
+      zoom,
+      extraFieldsAllowed,
+      predefinedFields,
+      mandatoryFields,
+      expiresOn,
+    };
+
+    try {
+      const res = await fetch(`${baseUri}/rooms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error('Failed to create room');
+
+      const room = await res.json();
+      statusDiv.textContent = `Room created! Redirecting to room...`;
+      createBtn.disabled = false;
+
+      // Redirect to the newly created room page
+      let webUrl = `${window.location.origin}/`;
+      window.location.href = `${webUrl}map?room=${id}`;
+
+    } catch (err) {
+      statusDiv.textContent = 'Error creating room. Try again.';
+      createBtn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

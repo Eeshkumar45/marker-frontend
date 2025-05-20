@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shared Map Markers</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Load Google Maps API -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCHJNKU5OusIApepLf8rbk56UcpfQlAugY&callback=initMap&libraries=places"
+      async
+      defer
+    ></script>
+  </head>
+  <body>
+    <div id="map-container">
+      <div class="search-wrapper">
+        <input id="pac-input" class="controls" type="text" placeholder="" />
+        <span class="clear-btn" id="clear-btn">&times;</span>
+      </div>
+      <div id="map"></div>
+      <div id="marker-form" class="hidden">
+        <h3 id="form-title">Add Marker</h3>
+        <div id="dynamic-fields-container">
+          <!-- Dynamic fields will be added here -->
+        </div>
+        <button id="add-field">Add Field</button>
+        <button id="save-marker">Save</button>
+        <button id="cancel-marker">Cancel</button>
+      </div>
+    </div>
+    <div id="marker-popup" class="hidden">
+        <h3>Marker Details</h3>
+        <div id="popup-details">
+          <!-- Dynamic details will be added here -->
+        </div>
+        <button id="popup-edit">Edit</button>
+        <button id="popup-delete">Delete</button>
+        <button id="popup-open">Open in Google Maps</button>
+        <button id="popup-close">Close</button>
+      </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

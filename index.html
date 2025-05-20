@@ -1,0 +1,44 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My App</title>
+</head>
+<body>
+  <nav id="nav" class="">
+    <a href="/home" onclick="navigateTo('/home', event)">Home</a>
+    <a href="/map" onclick="navigateTo('/map', event)">Map</a>
+  </nav>
+
+  <div id="app"></div>
+
+  <script>
+    function navigateTo(path, event) {
+      event.preventDefault();
+      history.pushState({}, '', path);
+      render(path);
+    }
+
+    function render(path) {
+      if (path === '/map') {
+        fetch('./map.html')
+          .then(res => res.text())
+          .then(html => {
+            document.getElementById('app').innerHTML = html;
+            document.getElementById('nav').classList.add('hidden');
+        });
+    } else if (path === '/home'){
+        fetch('./home.html')
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById('app').innerHTML = html;
+            document.getElementById('nav').classList.add('hidden');
+          });      
+        }
+    }
+
+    window.onpopstate = () => render(location.pathname);
+    render(location.pathname);
+  </script>
+</body>
+</html>
