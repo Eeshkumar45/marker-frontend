@@ -182,7 +182,7 @@
       alert('Invalid room ID.');
       return;
     }
-    let webUrl = `${window.location.origin}`;
+    let webUrl = `${window.location.origin}/`;
     window.location.href = `${webUrl}map.html?room=${id}`;
   });
 
@@ -233,7 +233,7 @@
       createBtn.disabled = false;
 
       // Redirect to the newly created room page
-      let webUrl = `${window.location.origin}`;
+      let webUrl = `${window.location.origin}/`;
       window.location.href = `${webUrl}map.html?room=${id}`;
 
     } catch (err) {
