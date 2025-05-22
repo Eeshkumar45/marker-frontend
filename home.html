@@ -182,8 +182,8 @@
       alert('Invalid room ID.');
       return;
     }
-    let webUrl = `${window.location.origin}/`;
-    window.location.href = `${webUrl}/map?room=${id}`;
+    let webUrl = `${window.location.origin}`;
+    window.location.href = `${webUrl}map.html?room=${id}`;
   });
 
   // Form submit - create room
@@ -233,8 +233,8 @@
       createBtn.disabled = false;
 
       // Redirect to the newly created room page
-      let webUrl = `${window.location.origin}/`;
-      window.location.href = `${webUrl}map?room=${id}`;
+      let webUrl = `${window.location.origin}`;
+      window.location.href = `${webUrl}map.html?room=${id}`;
 
     } catch (err) {
       statusDiv.textContent = 'Error creating room. Try again.';

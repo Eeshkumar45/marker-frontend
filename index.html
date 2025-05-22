@@ -19,23 +19,32 @@
       render(path);
     }
 
+    // function render(path) {
+    //   if (path === '/map') {
+    //     fetch('./map.html')
+    //       .then(res => res.text())
+    //       .then(html => {
+    //         document.getElementById('app').innerHTML = html;
+    //         document.getElementById('nav').classList.add('hidden');
+    //     });
+    // } else if (path === '/home'){
+    //     fetch('./home.html')
+    //     .then(res => res.text())
+    //     .then(html => {
+    //         document.getElementById('app').innerHTML = html;
+    //         document.getElementById('nav').classList.add('hidden');
+    //       });      
+    //     }
+    // }
+
     function render(path) {
-      if (path === '/map') {
-        fetch('./map.html')
-          .then(res => res.text())
-          .then(html => {
-            document.getElementById('app').innerHTML = html;
-            document.getElementById('nav').classList.add('hidden');
-        });
-    } else if (path === '/home'){
-        fetch('./home.html')
-        .then(res => res.text())
-        .then(html => {
-            document.getElementById('app').innerHTML = html;
-            document.getElementById('nav').classList.add('hidden');
-          });      
-        }
-    }
+  if (path === '/map') {
+    window.location.href = './map.html';
+  } else if (path === '/home') {
+    window.location.href = './home.html';
+  }
+}
+
 
     window.onpopstate = () => render(location.pathname);
     render(location.pathname);
